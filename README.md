@@ -1,24 +1,5 @@
-# vue_cli
+#Vue前台学习项目
 
-## Project setup
-```
-npm install
-```
+仅供学习参考，教程参考网上搜集。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+_power by Ramoif_

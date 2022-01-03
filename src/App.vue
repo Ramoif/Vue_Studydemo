@@ -1,10 +1,7 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+    <!--  给router-link展示的区域↓，注意初始化的时候不要删除这个！  -->
+    <router-view />
   </div>
 </template>
 
