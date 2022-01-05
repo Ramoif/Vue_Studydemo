@@ -8,7 +8,8 @@
     text-color="#fff"
     active-text-color="ffd04b"
   >
-    <h3>通用后台管理系统</h3>
+    <h3 v-show="!isCollapse">通用后台管理系统</h3>
+    <h3 v-show="isCollapse">后台</h3>
     <!--  一级菜单  -->
     <el-menu-item
       :index="item.path"
@@ -48,7 +49,6 @@
 export default {
   data () {
     return {
-      isCollapse: false,
       menu: [
         {
           path: '/',
@@ -111,6 +111,9 @@ export default {
     },
     hasChildren () {
       return this.menu.filter((item) => item.children)
+    },
+    isCollapse () {
+      return this.$store.state.tab.isCollapse
     }
   }
 }

@@ -405,3 +405,79 @@ header {
 </style>
 ```
 
+
+
+### 折叠左侧功能实现
+
+折叠功能取决于CommonAside.vue默认方法的isCollapse值来控制的。但是我们现在想要在Header组件来控制Aside的这个内容，涉及到了跨组件。我们在store目录下创建一个新文件tab.js：
+
+```js
+export default {
+  state: {
+    isCollapse: false
+  },
+  mutations: {
+    collapseMenu (state) {
+      state.isCollapse = !state.isCollapse
+    }
+  }
+}
+```
+
+mutations作用是对当前是否折叠的状态取反，来达到控制的效果。然后我们在同目录下的index.js中引入：
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import tab from './tab'
+
+Vue.use(Vuex)
+
+export default new Vuex.Store({
+  modules: {
+    tab
+  }
+})
+```
+
+然后回到CommonAside.vue中，删除默认的isCollapse data，在computed中新建一个：
+
+```vue
+isCollapse () {
+      return this.$store.state.tab.isCollapse
+}
+```
+
+最后回到CommonHeader添加方法：
+
+```vue
+<!--控制左侧侧边栏展开-->
+<el-button plain icon="el-icon-menu"
+           size="mini"
+           @click="handleMenu">
+</el-button>
+
+<!--下面是方法-->
+<script>
+export default {
+  data () {
+    return {
+      userImg: require('../assets/images/user.png'),
+    }
+  },
+  methods: {
+    handleMenu () {
+      this.$store.commit('collapseMenu')
+    }
+  }
+}
+</script>
+```
+
+我们发现，折叠起来的时候，通用后台管理系统也给折叠压缩了，但是我们想要折叠的时候精简显示这个标题，更加美观。我们使用v-show来实现这个功能：
+
+```vue
+<h3 v-show="!isCollapse">通用后台管理系统</h3>
+<h3 v-show="isCollapse">后台</h3>
+```
+

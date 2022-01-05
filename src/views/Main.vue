@@ -30,6 +30,10 @@ export default {
 
 <!--添加样式-->
 <style lang="scss" scoped>
+.el-container{
+
+}
+
 .el-header {
   background: #333;
 }
