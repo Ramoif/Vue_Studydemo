@@ -25,8 +25,7 @@
             :key="key"
             :prop="key"
             :label="val"
-          >
-          </el-table-column>
+          ></el-table-column>
         </el-table>
       </el-card>
     </el-col>
@@ -59,42 +58,13 @@
 </template>
 
 <script>
+import { getHome } from '../../api/data'
+
 export default {
   data () {
     return {
       userImg: require('../../assets/images/user.png'),
-      tableData: [
-        {
-          name: 'oppo',
-          todayBuy: 100,
-          monthBuy: 300,
-          totalBuy: 800150000.1,
-        },
-        {
-          name: 'xiaomi',
-          todayBuy: 200,
-          monthBuy: 300,
-          totalBuy: 800,
-        },
-        {
-          name: 'huawei',
-          todayBuy: 300,
-          monthBuy: 300,
-          totalBuy: 800,
-        },
-        {
-          name: 'vivo',
-          todayBuy: 400,
-          monthBuy: 300,
-          totalBuy: 800,
-        },
-        {
-          name: 'ZTE',
-          todayBuy: 500,
-          monthBuy: 300,
-          totalBuy: 800,
-        },
-      ],
+      tableData: [],
       countData: [
         {
           name: '今日支付',
@@ -136,10 +106,21 @@ export default {
       tableLabel: {
         name: '名称',
         todayBuy: '今日购买',
-        momthBuy: '本月购买',
+        monthBuy: '本月购买',
         totalBuy: '总购买',
       }
     }
+  },
+  methods: {
+    getTableData () {
+      getHome().then((res) => {
+        console.log(res)
+        this.tableData = res.data.tableData
+      })
+    },
+  },
+  mounted () {
+    this.getTableData()
   },
 }
 </script>

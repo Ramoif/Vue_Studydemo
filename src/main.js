@@ -4,7 +4,7 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import 'element-ui/lib/theme-chalk/index.css'
-
+import http from 'axios'
 import {
   Pagination,
   Dialog,
@@ -169,7 +169,11 @@ Vue.prototype.$prompt = MessageBox.prompt
 Vue.prototype.$notify = Notification
 Vue.prototype.$message = Message
 
+Vue.prototype.$http = http
+
 Vue.config.productionTip = false
+
+if (process.env.NODE_ENV === 'development') require('@/api/mock')
 
 new Vue({
   router,

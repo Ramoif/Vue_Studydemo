@@ -533,7 +533,57 @@ export default {
       }
     }
   }
+
+  .num {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    .el-card {
+      width: 32%;
+      margin-bottom: 20px;
+    }
+
+    .icon {
+      font-size: 30px;
+      width: 80px;
+      height: 80px;
+      text-align: center;
+      line-height: 80px;
+      color: #fff;
+    }
+
+    .detail {
+      margin-left: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .num {
+        font-size: 30px;
+        margin-bottom: 10px;
+      }
+
+      .txt {
+        font-size: 14px;
+        text-align: center;
+        color: #999999;
+      }
+    }
+  }
+
+  .graph {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+
+    .el-card {
+      width: 48%;
+    }
+  ;
+  }
 }
+
 
 ```
 
@@ -717,3 +767,476 @@ tableLabel: {
   </div>
 </el-col>
 ```
+
+
+
+## Axios.js
+
+###介绍安装
+
+引用自[Axios文档](https://www.axios-http.cn/docs/intro), Axios 是一个基于 *[promise](https://javascript.info/promise-basics)* 网络请求HTTP库，作用于[`node.js`](https://nodejs.org/) 和浏览器中。
+
+首先我们需要安装一下：
+
+```shell
+cnpm i axios -S
+```
+
+安装完成后回到main.js添加下面内容：
+
+```js
+import http from 'axios'
+
+Vue.prototype.$http = http
+```
+
+回到Home.vue中，在data()同级下创建一个mounted()，这里直接粘贴官方文档案例：
+
+```vue
+mounted () {
+  this.$http.get('/user', {
+    params: {
+      ID: 12345
+    }
+  })
+    .then(function (response) {
+      console.log(response)
+    })
+    .catch(function (error) {
+      console.log(error)
+    })
+}
+```
+
+刷新项目，我们按F12审查元素中的Network发现多出了一个报红的请求：
+
+```text
+XHR user?ID=12345
+Cannot GET /user
+```
+
+这就是一个基本的使用。
+
+
+
+### 二次封装
+
+创建一个api目录，在下面创建axios.js：
+
+```js
+// 二次封装axios拦截器
+import axios from 'axios'
+import config from '../config/index'
+// 设置配置 根据开发和生产环境不一样来变化
+const baseUrl = process.env.NODE_ENV === 'development' ? config.baseUrl.dev : config.baseUrl.pro
+
+class HttpRequest {
+  constructor (baseUrl) {
+    this.baseUrl = baseUrl
+  }
+
+  getInsideConfig () {
+    const config = {
+      baseURL: this.baseUrl,
+      header: {}
+    }
+    return config
+  }
+
+  interceptors (instance) {
+    instance.interceptors.request.use(function (config) {
+      // 在发送请求之前做些什么
+      console.log('拦截处理请求')
+      return config
+    }, function (error) {
+      // 对请求错误做些什么
+      return Promise.reject(error)
+    })
+    // 添加响应拦截器
+    instance.interceptors.response.use(function (response) {
+      console.log('处理响应')
+      // 2xx 范围内的状态码都会触发该函数。
+      // 对响应数据做点什么
+      return response
+    }, function (error) {
+      console.log(error)
+      // 超出 2xx 范围的状态码都会触发该函数。
+      // 对响应错误做点什么
+      return Promise.reject(error)
+    })
+  }
+
+  request (options) {
+    // 请求 /api/getList /api/getHome
+    const instance = axios.create()
+    // ?
+    options = { ...(this.getInsideConfig), ...options }
+    this.interceptors(instance)
+    return instance(options)
+  }
+}
+
+export default new HttpRequest(baseUrl)
+
+```
+
+设置配置方便调试，创建一个config目录，并创建一个index.js：
+
+```js
+export default {
+  title: 'admin',
+  baseUrl: {
+    // 开发环境
+    dev: '/api/',
+    // 生产环境
+    pro: ''
+  }
+}
+```
+
+### 二次封装用法
+
+在api目录下创建一个data.js：
+
+```js
+import axios from './axios'
+
+export const getMenu = () => {
+  return axios.request({
+    url: 'menu',
+    method: 'get'
+  })
+}
+```
+
+回到Home.vue，修改mounted：
+
+```vue
+// 在script下导入
+import { getMenu } from '../../api/data'
+
+mounted () {
+  getMenu().then((res) => {
+    console.log(res)
+  })
+},
+```
+
+这时候刷新项目，我们可以看到网页的控制台打印出了拦截处理请求：
+
+```text
+拦截处理请求
+xhr.js?b9e2:210 
+       GET http://localhost:8080/menu 404 (Not Found)
+拦截处理请求
+xhr.js?b9e2:210 
+       GET http://localhost:8080/menu 404 (Not Found)
+......
+```
+
+这个功能就可以让我们需要在请求之前做什么的时候，在interceptors方法的备注前添加，同理请求之后也是如此。
+
+
+
+## Mock.js
+
+###安装
+
+文档参考：[mock.js](http://mockjs.com/)，官方介绍： 生成随机数据，拦截 Ajax 请求 。
+
+```shell
+# 安装
+npm install mockjs
+
+# 个人使用
+cnpm i mockjs -S
+```
+
+###使用
+
+安装好了以后在api下新建一个mock.js文件：
+
+```js
+import Mock from 'mockjs'
+
+import homeApi from './mockServerData/home'
+
+Mock.mock('/api/home/getData', homeApi.getStatisticalData)
+```
+
+在api下创建一个mockServerData文件夹，在下面创建一个home.js放入准备模拟的数据：
+
+```js
+import Mock from 'mockjs'
+
+let List = []
+export default {
+  getStatisticalData: () => {
+    for (let i = 0; i < 7; i++) {
+      List.push(
+        Mock.mock({
+          oppo: Mock.Random.float(100, 8000, 0, 0),
+          xiaomi: Mock.Random.float(100, 8000, 0, 0),
+          huawei: Mock.Random.float(100, 8000, 0, 0),
+          vivo: Mock.Random.float(100, 8000, 0, 0),
+          ZTE: Mock.Random.float(100, 8000, 0, 0)
+        })
+      )
+    }
+    return {
+      code: 20000,
+      data{
+        // 饼图
+        videoData: [
+          {
+            name: 'oppo',
+            value: 2999
+          },
+          {
+            name: 'xiaomi',
+            value: 5999
+          },
+          {
+            name: 'huawei',
+            value: 1500
+          },
+          {
+            name: 'vivo',
+            value: 2000
+          },
+          {
+            name: 'ZTE',
+            value: 4000
+          }
+        ],
+        // 饼图
+        userData: [
+          {
+            date: '周一',
+            new: 5,
+            active: 200
+          },
+          {
+            date: '周二',
+            new: 11,
+            active: 400
+          },
+          {
+            date: '周三',
+            new: 22,
+            active: 330
+          },
+          {
+            date: '周四',
+            new: 69,
+            active: 550
+          },
+          {
+            date: '周五',
+            new: 53,
+            active: 200
+          },
+          {
+            date: '周六',
+            new: 65,
+            active: 770
+          },
+          {
+            date: '周日',
+            new: 33,
+            active: 170
+          }
+        ],
+        // 折线图
+        orderData:{
+          date:['20211001','20211002','20211003','20211004','20211005','20211006','20211007'],
+          data: List
+        },
+        tableData: [
+          {
+            name: 'oppo',
+            todayBuy: 100,
+            monthBuy: 3500,
+            totalBuy: 22000,
+          },
+          {
+            name: 'xiaomi',
+            todayBuy: 300,
+            monthBuy: 2200,
+            totalBuy: 24000,
+          },
+          {
+            name: 'huawei',
+            todayBuy: 800,
+            monthBuy: 4500,
+            totalBuy: 65000,
+          },
+          {
+            name: 'vivo',
+            todayBuy: 300,
+            monthBuy: 2200,
+            totalBuy: 65000,
+          },
+          {
+            name: 'ZTE',
+            todayBuy: 300,
+            monthBuy: 1200,
+            totalBuy: 15000,
+          },
+        ],
+      }
+    }
+  }
+}
+
+```
+
+然后回到Home.vue，删除掉下面内容并修改：
+
+```vue
+// 删除：
+import { getMenu } from '../../api/data'
+// 修改为：
+import { getHome } from '../../api/data'
+
+// 删除原来TableData中的数据，然后添加方法，修改mounted：
+methods: {
+  getTableData () {
+    getHome().then((res) => {
+      console.log(res)
+      this.tableData = res.data.data.tableData
+    })
+  },
+},
+mounted () {
+  this.getTableData()
+},
+```
+
+打开api目录下的data.js，添加下面内容：
+
+```js
+export const getHome = () => {
+  return axios.request({
+    url: '/api/home/getData',
+    method: 'get'
+  })
+}
+```
+
+### 二次封装改进
+
+```js
+interceptors (instance) {
+  instance.interceptors.request.use(function (config) {
+    // 在发送请求之前做些什么
+    console.log('拦截处理请求')
+    return config
+  }, function (error) {
+    // 对请求错误做些什么
+    return Promise.reject(error)
+  })
+  // 添加响应拦截器
+  instance.interceptors.response.use(function (response) {
+    console.log('处理响应')
+    // 2xx 范围内的状态码都会触发该函数。
+    // 对响应数据做点什么
+      
+    // ☆☆☆ 改进这一行，这里直接返回.data，这样回到Home.vue的时候就可以少一层调用。  
+    return response.data
+      
+      
+  }, function (error) {
+    console.log(error)
+    // 超出 2xx 范围的状态码都会触发该函数。
+    // 对响应错误做点什么
+    return Promise.reject(error)
+  })
+}
+
+
+// ☆☆☆ 如果报错404，this.getInsideConfig后面添加上()。我这里没有报错所以没有添加。
+request (options) {
+  // 请求 /api/getList /api/getHome
+  const instance = axios.create()
+  // ?
+  options = { ...(this.getInsideConfig), ...options }
+  this.interceptors(instance)
+  return instance(options)
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
