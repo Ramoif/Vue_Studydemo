@@ -481,3 +481,239 @@ export default {
 <h3 v-show="isCollapse">后台</h3>
 ```
 
+
+
+## Home(首页)展示
+
+想要实现点击侧边栏跳转到对应的功能组件，需要涉及到路由模块。
+
+这里如果展示出现问题，回到Main.vue查看el-main中是否有预留展示的空间`<router-view />`
+
+###用户小卡片
+
+首先准备好scss样式提供给Home.vue：
+
+```scss
+.home {
+  .user {
+    display: flex;
+    align-items: center;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+
+    img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-right: 40px;
+    }
+
+    &info {
+      .name {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .access {
+        color: #999999;
+      }
+    }
+  }
+
+  .login-info {
+    p {
+      line-height: 28px;
+      font-size: 14px;
+      color: #999999;
+
+      span {
+        color: #666666;
+        margin-left: 60px;
+      }
+    }
+  }
+}
+
+```
+
+然后在views目录下创建Home目录，在Home目录下创建Home.vue：
+
+```vue
+<template>
+  <el-row class="home" :gutter="20">
+    <el-col :span="8" style="margin-top: 20px">
+      <el-card shadow="hover">
+        <div class="user">
+          <img :src="userImg"/>
+          <div class="userInfo">
+            <p class="name">Admin</p>
+            <p class="access">超级管理员</p>
+          </div>
+        </div>
+        <div class="login-info">
+          <p>上次登陆时间：<span>2021-1-5</span></p>
+          <p>上次登陆地点：<span>XXXX</span></p>
+        </div>
+      </el-card>
+    </el-col>
+    <el-col :span="16">
+
+    </el-col>
+  </el-row>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      userImg: require('../../assets/images/user.png'),
+    }
+  },
+}
+</script>
+
+<!--导入样式-->
+<style lang="scss" scoped>
+@import "~@/assets/scss/home";
+</style>
+```
+
+
+
+### 表格小卡片
+
+样式：
+
+```vue
+<!--表格-->
+<el-card style="height: 470px;margin-top: 20px">
+  <el-table :data="tableData">
+    <el-table-column
+      show-overflow-tooltip
+      v-for="(val,key) in tableLabel"
+      :key="key"
+      :prop="key"
+      :label="val"
+    >
+    </el-table-column>
+  </el-table>
+</el-card>
+```
+
+数据：
+
+```vue
+tableData: [
+  {
+    name: 'oppo',
+    todayBuy: 100,
+    monthBuy: 300,
+    totalBuy: 800150000.1,
+  },
+  {
+    name: 'xiaomi',
+    todayBuy: 200,
+    monthBuy: 300,
+    totalBuy: 800,
+  },
+  {
+    name: 'huawei',
+    todayBuy: 300,
+    monthBuy: 300,
+    totalBuy: 800,
+  },
+  {
+    name: 'vivo',
+    todayBuy: 400,
+    monthBuy: 300,
+    totalBuy: 800,
+  },
+  {
+    name: 'ZTE',
+    todayBuy: 500,
+    monthBuy: 300,
+    totalBuy: 800,
+  },
+],
+tableLabel: {
+  name: '名称',
+  todayBuy: '今日购买',
+  momthBuy: '本月购买',
+  totalBuy: '总购买',
+}
+```
+
+
+
+### 订单卡片
+
+先准备好数据：
+```vue
+countData: [
+  {
+    name: '今日支付',
+    value: 1234,
+    icon: 'success',
+    color: '#2ec7c9',
+  },
+  {
+    name: '今日收藏',
+    value: 210,
+    icon: 'start-on',
+    color: '#ffb980',
+  },
+  {
+    name: '今日未支付',
+    value: 1234,
+    icon: 's-goods',
+    color: '#5ab1ef',
+  },
+  {
+    name: '本月支付',
+    value: 1234,
+    icon: 'success',
+    color: '#2ec7c9',
+  },
+  {
+    name: '本月收藏',
+    value: 210,
+    icon: 'start-on',
+    color: '#ffb980',
+  },
+  {
+    name: '本月未支付',
+    value: 1234,
+    icon: 's-goods',
+    color: '#5ab1ef',
+  },
+],
+tableLabel: {
+  name: '名称',
+  todayBuy: '今日购买',
+  momthBuy: '本月购买',
+  totalBuy: '总购买',
+}
+```
+样式：
+```vue
+<!--右侧16分区-->
+<el-col :span="16">
+  <div class="num">
+    <el-card shadow="hover"
+             v-for="item in countData"
+             :key="item.name"
+             :body-style="{display:'flex',padding:0}"
+    >
+      <i class="icon"
+         :class="`el-icon-${item.icon}`"
+         :style="{background:item.color}">
+      </i>
+      <div class="detail">
+        <p class="num">￥{{ item.value }}</p>
+        <p class="txt">￥{{ item.name }}</p>
+      </div>
+    </el-card>
+  </div>
+</el-col>
+```

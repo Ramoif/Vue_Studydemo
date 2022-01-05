@@ -9,7 +9,9 @@
       <el-header>
         <common-header></common-header>
       </el-header>
-      <el-main>Main</el-main>
+      <el-main>
+        <router-view />
+      </el-main>
     </el-container>
   </el-container>
 </template>
@@ -29,8 +31,17 @@ export default {
 </script>
 
 <!--添加样式-->
-<style lang="scss" scoped>
-.el-container{
+<style lang="scss">
+* {
+  padding:0;
+  margin:0;
+}
+
+.el-container {
+
+}
+
+.el-aside {
 
 }
 
