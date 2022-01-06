@@ -1168,15 +1168,378 @@ request (options) {
 
 
 
+##Echarts表格
+
+### html引入
+
+```js
+<script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+```
+
+我这里使用了本地引入，使用的是5.2.2版本。
+
+### html实例
+
+这里引用自[菜鸟教程Echarts](https://www.runoob.com/echarts/echarts-tutorial.html)，第一个例子开始，在一个新文件夹新建一个测试类echartsTest.html：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Echarts</title>
+    <!--  引入js  -->
+    <script src="./echarts.min.js"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 600px;height:400px;"></div>
+<script type="text/javascript">
+  // 基于准备好的dom，初始化echarts实例
+  var myChart = echarts.init(document.getElementById('main'))
+
+  // 指定图表的配置项和数据
+  var option = {
+    title: {
+      text: '第一个 ECharts 实例'
+    },
+    tooltip: {},
+    legend: {
+      data: ['销量']
+    },
+    xAxis: {
+      data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
+    },
+    yAxis: {},
+    series: [{
+      name: '销量',
+      type: 'bar',
+      data: [5, 20, 36, 10, 10, 20]
+    }]
+  }
+
+  // 使用刚指定的配置项和数据显示图表。
+  myChart.setOption(option)
+</script>
+</body>
+</html>
+```
+
+直接打开html文件，就可以看到柱状图了。
 
 
 
+### Vue安装与引入
+
+首先安装echarts：
+
+```shell
+cnpm i echarts -S
+```
+
+回到Home.vue中，在script下：
+
+```vue
+import * as echarts from 'echarts'
+```
+
+###引入展示数据
+
+在data中添加：
+
+```vue
+data () {
+  return {
+    userImg: require('../../assets/images/user.png'),
+    tableData: [],
+    countData: [
+      {
+        name: '今日支付',
+        value: 1234,
+        icon: 'success',
+        color: '#2ec7c9',
+      },
+      {
+        name: '今日收藏',
+        value: 210,
+        icon: 'start-on',
+        color: '#ffb980',
+      },
+      {
+        name: '今日未支付',
+        value: 1234,
+        icon: 's-goods',
+        color: '#5ab1ef',
+      },
+      {
+        name: '本月支付',
+        value: 1234,
+        icon: 'success',
+        color: '#2ec7c9',
+      },
+      {
+        name: '本月收藏',
+        value: 210,
+        icon: 'start-on',
+        color: '#ffb980',
+      },
+      {
+        name: '本月未支付',
+        value: 1234,
+        icon: 's-goods',
+        color: '#5ab1ef',
+      },
+    ],
+    tableLabel: {
+      name: '名称',
+      todayBuy: '今日购买',
+      monthBuy: '本月购买',
+      totalBuy: '总购买',
+    },
+    echartsData: {
+      order: {
+        legend: {
+          // 图例文字颜色
+          textStyle: {
+            color: '#333',
+          },
+        },
+        grid: {
+          left: '20%',
+        },
+        // 提示框
+        tooltip: {
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: 'category', // 类目轴
+          data: [],
+          axisLine: {
+            lineStyle: {
+              color: '#17b3a3',
+            },
+          },
+          axisLabel: {
+            interval: 0,
+            color: '#333',
+          },
+        },
+        yAxis: [
+          {
+            type: 'value',
+            axisLine: {
+              lineStyle: {
+                color: '#17b3a3',
+              },
+            },
+          },
+        ],
+        color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
+        series: [],
+      },
+      user: {
+        legend: {
+          // 图例文字颜色
+          textStyle: {
+            color: '#333',
+          },
+        },
+        grid: {
+          left: '20%',
+        },
+        // 提示框
+        tooltip: {
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: 'category', // 类目轴
+          data: [],
+          axisLine: {
+            lineStyle: {
+              color: '#17b3a3',
+            },
+          },
+          axisLabel: {
+            interval: 0,
+            color: '#333',
+          },
+        },
+        yAxis: [
+          {
+            type: 'value',
+            axisLine: {
+              lineStyle: {
+                color: '#17b3a3',
+              },
+            },
+          },
+        ],
+        color: ['#2ec7c9', '#b6a2de'],
+        series: [],
+      },
+      video: {
+        tooltip: {
+          trigger: 'item',
+        },
+        color: [
+          '#0f78f4',
+          '#dd536b',
+          '#9462e5',
+          '#a6a6a6',
+          '#e1bb22',
+          '#39c362',
+          '#3ed1cf',
+        ],
+        series: [],
+      },
+    },
+  }
+},
+```
+
+###line/bar/pie图
+
+然后在methods中添加：
+
+```vue
+methods: {
+  getTableData () {
+    getHome().then((res) => {
+      console.log(res)
+      this.tableData = res.data.tableData
+      // 折线图展示
+      const order = res.data.orderData
+      console.log(order)
+      this.echartsData.order.xAxis.data = order.date
+      let keyArray = Object.keys(order.data[0])
+      keyArray.forEach((key) => {
+        this.echartsData.order.series.push({
+          name: key,
+          data: order.data.map((item) => item[key]),
+          type: 'line'
+        })
+      })
+      const myEchartsOrder = echarts.init(this.$refs.echart)
+      myEchartsOrder.setOption(this.echartsData.order)
+      // 用户图-柱状图
+      this.echartsData.user.xAxis.data = res.data.userData.map((item) => item.date)
+      this.echartsData.user.series.push({
+        name: '新增用户',
+        data: res.data.userData.map((item) => item.new),
+        type: 'bar',
+      })
+      this.echartsData.user.series.push({
+        name: '活跃用户',
+        data: res.data.userData.map((item) => item.active),
+        type: 'bar',
+      })
+      const myEchartsUser = echarts.init(this.$refs.userEchart)
+      myEchartsUser.setOption(this.echartsData.user)
+      // 饼图
+      this.echartsData.video.series.push({
+        data: res.data.videoData,
+        type: 'pie'
+      })
+      const myEchartsVideo = echarts.init(this.$refs.videoEchart)
+      myEchartsVideo.setOption(this.echartsData.video)
+    })
+  },
+},
+```
 
 
 
+###封装Echarts
 
+从上面的例子我们可以看出来，我们会经常跟图标打交道，例如订单数量表，销量表，会员数量表...如果我们没有封装的思路的话，每次都要重复的来设置图表属性，非常的繁琐，我们需要封装的思路来解决这个问题。
 
+首先我们在components下新建一个Echarts.vue
 
+```vue
+<template>
+  <div ref="echart"></div>
+</template>
+
+<script>
+export default {
+  props: {
+    chartData: {
+      type: Object,
+      default () {
+        return {
+          xData: [],
+          series,
+        }
+      }
+    },
+    isAxisChart: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  data () {
+    return {
+      axisOption{
+        legend: {
+          // 图例文字颜色
+          textStyle: {
+            color: '#333',
+          },
+        },
+        grid: {
+          left: '20%',
+        },
+        // 提示框
+        tooltip: {
+          trigger: 'axis',
+        },
+        xAxis: {
+          type: 'category', // 类目轴
+          data: [],
+          axisLine: {
+            lineStyle: {
+              color: '#17b3a3',
+            },
+          },
+          axisLabel: {
+            interval: 0,
+            color: '#333',
+          },
+        },
+        yAxis: [
+          {
+            type: 'value',
+            axisLine: {
+              lineStyle: {
+                color: '#17b3a3',
+              },
+            },
+          },
+        ],
+        color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
+        series: [],
+      },
+      normalOption{
+        tooltip: {
+          trigger: 'item',
+        },
+        color: [
+          '#0f78f4',
+          '#dd536b',
+          '#9462e5',
+          '#a6a6a6',
+          '#e1bb22',
+          '#39c362',
+          '#3ed1cf',
+        ],
+        series: [],
+      },
+    }
+  }
+}
+</script>
+
+```
 
 
 

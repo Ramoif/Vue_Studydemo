@@ -10,7 +10,7 @@
         <common-header></common-header>
       </el-header>
       <el-main>
-        <router-view />
+        <router-view/>
       </el-main>
     </el-container>
   </el-container>
@@ -32,19 +32,7 @@ export default {
 
 <!--添加样式-->
 <style lang="scss">
-* {
-  padding:0;
-  margin:0;
-}
-
-.el-container {
-
-}
-
-.el-aside {
-
-}
-
+@import "~@/assets/scss/reset";
 .el-header {
   background: #333;
 }

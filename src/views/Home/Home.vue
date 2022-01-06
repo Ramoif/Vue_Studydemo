@@ -13,7 +13,7 @@
         </div>
         <div class="login-info">
           <p>上次登陆时间：<span>2021-1-5</span></p>
-          <p>上次登陆地点：<span>宜昌</span></p>
+          <p>上次登陆地点：<span>湖北宜昌</span></p>
         </div>
       </el-card>
       <!--表格-->
@@ -47,11 +47,19 @@
           </div>
         </el-card>
       </div>
+      <!--折线图-->
       <el-card shadow="hover" style="height: 280px">
+        <div style="height: 280px" ref="echart"></div>
       </el-card>
       <div class="graph">
-        <el-card shadow="hover" style="height: 260px"></el-card>
-        <el-card shadow="hover" style="height: 260px"></el-card>
+        <!--柱状图-->
+        <el-card shadow="hover" style="height: 260px">
+          <div style="height: 240px" ref="userEchart"></div>
+        </el-card>
+        <!--饼图-->
+        <el-card shadow="hover" style="height: 260px">
+          <div style="height: 240px" ref="videoEchart"></div>
+        </el-card>
       </div>
     </el-col>
   </el-row>
@@ -59,6 +67,7 @@
 
 <script>
 import { getHome } from '../../api/data'
+import * as echarts from 'echarts'
 
 export default {
   data () {
@@ -108,7 +117,105 @@ export default {
         todayBuy: '今日购买',
         monthBuy: '本月购买',
         totalBuy: '总购买',
-      }
+      },
+      echartsData: {
+        order: {
+          legend: {
+            // 图例文字颜色
+            textStyle: {
+              color: '#333',
+            },
+          },
+          grid: {
+            left: '20%',
+          },
+          // 提示框
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            type: 'category', // 类目轴
+            data: [],
+            axisLine: {
+              lineStyle: {
+                color: '#17b3a3',
+              },
+            },
+            axisLabel: {
+              interval: 0,
+              color: '#333',
+            },
+          },
+          yAxis: [
+            {
+              type: 'value',
+              axisLine: {
+                lineStyle: {
+                  color: '#17b3a3',
+                },
+              },
+            },
+          ],
+          color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
+          series: [],
+        },
+        user: {
+          legend: {
+            // 图例文字颜色
+            textStyle: {
+              color: '#333',
+            },
+          },
+          grid: {
+            left: '20%',
+          },
+          // 提示框
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            type: 'category', // 类目轴
+            data: [],
+            axisLine: {
+              lineStyle: {
+                color: '#17b3a3',
+              },
+            },
+            axisLabel: {
+              interval: 0,
+              color: '#333',
+            },
+          },
+          yAxis: [
+            {
+              type: 'value',
+              axisLine: {
+                lineStyle: {
+                  color: '#17b3a3',
+                },
+              },
+            },
+          ],
+          color: ['#2ec7c9', '#b6a2de'],
+          series: [],
+        },
+        video: {
+          tooltip: {
+            trigger: 'item',
+          },
+          color: [
+            '#0f78f4',
+            '#dd536b',
+            '#9462e5',
+            '#a6a6a6',
+            '#e1bb22',
+            '#39c362',
+            '#3ed1cf',
+          ],
+          series: [],
+        },
+      },
+
     }
   },
   methods: {
@@ -116,6 +223,44 @@ export default {
       getHome().then((res) => {
         console.log(res)
         this.tableData = res.data.tableData
+
+        // 折线图展示
+        const order = res.data.orderData
+        console.log(order)
+        this.echartsData.order.xAxis.data = order.date
+        let keyArray = Object.keys(order.data[0])
+        keyArray.forEach((key) => {
+          this.echartsData.order.series.push({
+            name: key,
+            data: order.data.map((item) => item[key]),
+            type: 'line'
+          })
+        })
+        const myEchartsOrder = echarts.init(this.$refs.echart)
+        myEchartsOrder.setOption(this.echartsData.order)
+
+        // 用户图-柱状图
+        this.echartsData.user.xAxis.data = res.data.userData.map((item) => item.date)
+        this.echartsData.user.series.push({
+          name: '新增用户',
+          data: res.data.userData.map((item) => item.new),
+          type: 'bar',
+        })
+        this.echartsData.user.series.push({
+          name: '活跃用户',
+          data: res.data.userData.map((item) => item.active),
+          type: 'bar',
+        })
+        const myEchartsUser = echarts.init(this.$refs.userEchart)
+        myEchartsUser.setOption(this.echartsData.user)
+
+        // 饼图
+        this.echartsData.video.series.push({
+          data: res.data.videoData,
+          type: 'pie'
+        })
+        const myEchartsVideo = echarts.init(this.$refs.videoEchart)
+        myEchartsVideo.setOption(this.echartsData.video)
       })
     },
   },
