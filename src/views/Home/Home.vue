@@ -49,16 +49,23 @@
       </div>
       <!--折线图-->
       <el-card shadow="hover" style="height: 280px">
-        <div style="height: 280px" ref="echart"></div>
+        <!--<div style="height: 280px" ref="echart"></div>-->
+        <echart :chartData="echartData.order"
+                style="height: 280px"></echart>
       </el-card>
       <div class="graph">
         <!--柱状图-->
         <el-card shadow="hover" style="height: 260px">
-          <div style="height: 240px" ref="userEchart"></div>
+          <!--<div style="height: 240px" ref="userEchart"></div>-->
+          <echart :chartData="echartData.user"
+                  style="height: 240px"></echart>
         </el-card>
         <!--饼图-->
         <el-card shadow="hover" style="height: 260px">
-          <div style="height: 240px" ref="videoEchart"></div>
+          <!--<div style="height: 240px" ref="videoEchart"></div>-->
+          <echart :chartData="echartData.video"
+                  style="height: 240px"
+                  :isAxisChart="false"></echart>
         </el-card>
       </div>
     </el-col>
@@ -68,8 +75,12 @@
 <script>
 import { getHome } from '../../api/data'
 import * as echarts from 'echarts'
+import Echart from '@/components/Echarts.vue'
 
 export default {
+  components: {
+    Echart
+  },
   data () {
     return {
       userImg: require('../../assets/images/user.png'),
@@ -118,149 +129,92 @@ export default {
         monthBuy: '本月购买',
         totalBuy: '总购买',
       },
-      echartsData: {
+      // 封装的Echart数据
+      echartData: {
         order: {
-          legend: {
-            // 图例文字颜色
-            textStyle: {
-              color: '#333',
-            },
-          },
-          grid: {
-            left: '20%',
-          },
-          // 提示框
-          tooltip: {
-            trigger: 'axis',
-          },
-          xAxis: {
-            type: 'category', // 类目轴
-            data: [],
-            axisLine: {
-              lineStyle: {
-                color: '#17b3a3',
-              },
-            },
-            axisLabel: {
-              interval: 0,
-              color: '#333',
-            },
-          },
-          yAxis: [
-            {
-              type: 'value',
-              axisLine: {
-                lineStyle: {
-                  color: '#17b3a3',
-                },
-              },
-            },
-          ],
-          color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
+          xData: [],
           series: [],
         },
         user: {
-          legend: {
-            // 图例文字颜色
-            textStyle: {
-              color: '#333',
-            },
-          },
-          grid: {
-            left: '20%',
-          },
-          // 提示框
-          tooltip: {
-            trigger: 'axis',
-          },
-          xAxis: {
-            type: 'category', // 类目轴
-            data: [],
-            axisLine: {
-              lineStyle: {
-                color: '#17b3a3',
-              },
-            },
-            axisLabel: {
-              interval: 0,
-              color: '#333',
-            },
-          },
-          yAxis: [
-            {
-              type: 'value',
-              axisLine: {
-                lineStyle: {
-                  color: '#17b3a3',
-                },
-              },
-            },
-          ],
-          color: ['#2ec7c9', '#b6a2de'],
+          xData: [],
           series: [],
         },
         video: {
-          tooltip: {
-            trigger: 'item',
-          },
-          color: [
-            '#0f78f4',
-            '#dd536b',
-            '#9462e5',
-            '#a6a6a6',
-            '#e1bb22',
-            '#39c362',
-            '#3ed1cf',
-          ],
           series: [],
         },
-      },
-
+      }
     }
   },
   methods: {
     getTableData () {
       getHome().then((res) => {
-        console.log(res)
+        // console.log(res)
         this.tableData = res.data.tableData
 
         // 折线图展示
         const order = res.data.orderData
-        console.log(order)
-        this.echartsData.order.xAxis.data = order.date
+        // this.echartsData.order.xAxis.data = order.date
         let keyArray = Object.keys(order.data[0])
+        // keyArray.forEach((key) => {
+        //   this.echartsData.order.series.push({
+        //     name: key,
+        //     data: order.data.map((item) => item[key]),
+        //     type: 'line'
+        //   })
+        // })
+        // const myEchartsOrder = echarts.init(this.$refs.echart)
+        // myEchartsOrder.setOption(this.echartsData.order)
+
+        // 封装-传给组件的值，记得注释掉上面的两行。
+        this.echartData.order.xData = order.date
         keyArray.forEach((key) => {
-          this.echartsData.order.series.push({
+          this.echartData.order.series.push({
             name: key,
             data: order.data.map((item) => item[key]),
             type: 'line'
           })
         })
-        const myEchartsOrder = echarts.init(this.$refs.echart)
-        myEchartsOrder.setOption(this.echartsData.order)
 
         // 用户图-柱状图
-        this.echartsData.user.xAxis.data = res.data.userData.map((item) => item.date)
-        this.echartsData.user.series.push({
+        // this.echartsData.user.xAxis.data = res.data.userData.map((item) => item.date)
+        // this.echartsData.user.series.push({
+        //   name: '新增用户',
+        //   data: res.data.userData.map((item) => item.new),
+        //   type: 'bar',
+        // })
+        // this.echartsData.user.series.push({
+        //   name: '活跃用户',
+        //   data: res.data.userData.map((item) => item.active),
+        //   type: 'bar',
+        // })
+        // const myEchartsUser = echarts.init(this.$refs.userEchart)
+        // myEchartsUser.setOption(this.echartsData.user)
+
+        // 用户图封装-柱状图
+        this.echartData.user.xData = res.data.userData.map((item) => item.date)
+        this.echartData.user.series.push({
           name: '新增用户',
           data: res.data.userData.map((item) => item.new),
           type: 'bar',
         })
-        this.echartsData.user.series.push({
+        this.echartData.user.series.push({
           name: '活跃用户',
           data: res.data.userData.map((item) => item.active),
           type: 'bar',
         })
-        const myEchartsUser = echarts.init(this.$refs.userEchart)
-        myEchartsUser.setOption(this.echartsData.user)
-
         // 饼图
-        this.echartsData.video.series.push({
+        // this.echartsData.video.series.push({
+        //   data: res.data.videoData,
+        //   type: 'pie'
+        // })
+        // const myEchartsVideo = echarts.init(this.$refs.videoEchart)
+        // myEchartsVideo.setOption(this.echartsData.video)
+
+        // 封装-pie图
+        this.echartData.video.series.push({
           data: res.data.videoData,
           type: 'pie'
         })
-        const myEchartsVideo = echarts.init(this.$refs.videoEchart)
-        myEchartsVideo.setOption(this.echartsData.video)
       })
     },
   },

@@ -1453,7 +1453,7 @@ methods: {
 
 从上面的例子我们可以看出来，我们会经常跟图标打交道，例如订单数量表，销量表，会员数量表...如果我们没有封装的思路的话，每次都要重复的来设置图表属性，非常的繁琐，我们需要封装的思路来解决这个问题。
 
-首先我们在components下新建一个Echarts.vue
+首先我们在components下新建一个Echarts.vue（这里直接给完整代码）
 
 ```vue
 <template>
@@ -1461,6 +1461,8 @@ methods: {
 </template>
 
 <script>
+import * as echarts from 'echarts'
+
 export default {
   props: {
     chartData: {
@@ -1477,9 +1479,42 @@ export default {
       default: true,
     },
   },
+  watch: {
+    chartData: {
+      handler: function () {
+        this.initChart()
+      },
+      deep: true,
+    }
+  },
+  computed: {
+    options () {
+      return this.isAxisChart ? this.axisOption : this.normalOption
+    }
+  },
+  methods: {
+    initChart () {
+      this.initChartData()
+      // 设置echarts表格
+      if (this.echart) {
+        this.echart.setOption(this.options)
+      } else {
+        this.echart = echarts.init(this.$refs.echart)
+        this.echart.setOption(this.options)
+      }
+    },
+    initChartData () {
+      if (this.isAxisChart) {
+        this.axisOption.xAxis.data = this.chartData.xData
+        this.axisOption.series = this.chartData.series
+      } else {
+        this.normalOption.series = this.chartData.series
+      }
+    }
+  },
   data () {
     return {
-      axisOption{
+      axisOption: {
         legend: {
           // 图例文字颜色
           textStyle: {
@@ -1519,7 +1554,7 @@ export default {
         color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
         series: [],
       },
-      normalOption{
+      normalOption: {
         tooltip: {
           trigger: 'item',
         },
@@ -1534,6 +1569,7 @@ export default {
         ],
         series: [],
       },
+      echart: null,
     }
   }
 }
@@ -1543,15 +1579,401 @@ export default {
 
 
 
+### 封装line图
+
+回到Home.vue，导入：
+
+```vue
+<!--折线图-->
+<el-card shadow="hover" style="height: 280px">
+  <!--这里注释掉<div style="height: 280px" ref="echart"></div>-->
+  <echart :chartData="echartData.order"
+          style="height: 280px"></echart>
+</el-card>
+
+... ...
+
+import Echart from '@/components/Echarts.vue'
+export default {
+  components: {
+    Echart
+  },
+```
+
+methods：
+
+```vue
+// 折线图展示
+const order = res.data.orderData
+let keyArray = Object.keys(order.data[0])
+
+this.echartData.order.xData = order.date
+keyArray.forEach((key) => {
+  this.echartData.order.series.push({
+    name: key,
+    data: order.data.map((item) => item[key]),
+    type: 'line'
+  })
+})
+```
+
+删除掉echartsData中order的部分。保存刷新看到仍然能够显示折线图，成功封装了折线图。
 
 
 
+ ### 封装pie和bar图
+
+首先对template中原来的部分删除。替换为封装的echart图，注意video需要加上`:isAxisChart="false"`属性，因为是一个饼图没有线性数据。
+
+```vue
+<div class="graph">
+  <!--柱状图-->
+  <el-card shadow="hover" style="height: 260px">
+    <!--<div style="height: 240px" ref="userEchart"></div>-->
+    <echart :chartData="echartData.user"
+            style="height: 240px"></echart>
+  </el-card>
+  <!--饼图-->
+  <el-card shadow="hover" style="height: 260px">
+    <!--<div style="height: 240px" ref="videoEchart"></div>-->
+    <echart :chartData="echartData.video"
+            style="height: 240px"
+            :isAxisChart="false"></echart>
+  </el-card>
+</div>
+```
+
+然后直接删除掉原来的echartsData。
+
+最后去修改方法：
+
+```vue
+// 用户图封装-柱状图
+this.echartData.user.xData = res.data.userData.map((item) => item.date)
+this.echartData.user.series.push({
+  name: '新增用户',
+  data: res.data.userData.map((item) => item.new),
+  type: 'bar',
+})
+this.echartData.user.series.push({
+  name: '活跃用户',
+  data: res.data.userData.map((item) => item.active),
+  type: 'bar',
+})
+// 封装-pie图
+this.echartData.video.series.push({
+  data: res.data.videoData,
+  type: 'pie'
+})
+```
 
 
 
+## 面包屑导航
+
+###路由跳转遗留问题
+
+我们点击其他页面的时候，在header内会显示我们点进去的模块名，例如`首页 / 商品管理`这样的展示形式。我们现在点击除了首页以外的组件会发现没有内容，我们需要先给其他模块实现一个路由跳转。
+
+首先打开router下的index.js，我们删除原来的about内容，在children下新建下面内容：
+
+```js
+children: [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/views/Home/Home')
+  },
+  {
+    path: '/mall',
+    name: 'mall',
+    component: () => import('@/views/Mall/Mall')
+  },
+  {
+    path: '/user',
+    name: 'user',
+    component: () => import('@/views/User/User')
+  }
+]
+```
+
+然后在views下新建`Mall/Mall.vue`和`User/User.vue`即可完成路由跳转的配置。
 
 
 
+### 面包屑的实现
+
+逻辑：首先是面包屑`首页`一定要存在的,接下来 `Aside` 中点击某菜单,把这个数据存到`vuex`中，然后`Header`来获取`vuex`中这个数据并展示。我们打开store目录下的tab.js添加内容，用于判断和获取侧边栏名称：
+
+```js
+export default {
+  state: {
+    isCollapse: false,
+    currentMenu: null
+  },
+  mutations: {
+    collapseMenu (state) {
+      state.isCollapse = !state.isCollapse
+    },
+    selectMenu (state, val) {
+      val.name === 'home' ? (state.currentMenu = null) : state.currentMenu = val
+    }
+  }
+}
+```
+
+回到CommonAside.vue中添加：
+
+```vue
+methods: {
+  clickMenu (item) {
+    this.$router.push({ name: item.name })
+    this.$store.commit('selectMenu', item)
+  }
+},
+```
+
+回到CommonHeader.vue中，删除掉原来的h3标题，我们更换为面包屑导航：
+
+```vue
+<el-breadcrumb>
+  <el-breadcrumb-item :to="{path:'/'}">首页</el-breadcrumb-item>
+  <el-breadcrumb-item :to="current.path"
+                      v-if="current">
+    {{ current.label }}
+  </el-breadcrumb-item>
+</el-breadcrumb>
+
+<script>
+import { mapState } from 'vuex'
+export default {
+  data () {
+    return {
+      userImg: require('../assets/images/user.png'),
+    }
+  },
+  methods: {
+    handleMenu () {
+      this.$store.commit('collapseMenu')
+    }
+  },
+  computed: {
+    ...mapState({
+      current: state => state.tab.currentMenu,
+    }),
+  }
+}
+</script>
+```
+
+我们发现面包屑默认是灰色和黑色，跟我们设置的背景颜色不搭配。我们修改一下样式：
+
+```html
+<style lang="scss">
+  .el-breadcrumb__item{
+    .el-breadcrumb__inner{
+      color: #666;
+      font-weight: normal;
+    }
+    &:last-child{
+      .el-breadcrumb__inner{
+        color: white;
+      }
+    }
+  }
+</style>
+```
+
+
+
+### 路由重复导航解决
+
+我们在网页审查元素，打开控制台，点击首页的时候会发现报红，这是因为我们重复点击首页导致的。我们需要改进一下路由的配置。打开router下index.js，在import下添加下面代码：
+
+```js
+// 解决重复导航错误
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push (location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+```
+
+
+
+## Tag标签
+
+### 新增与跳转
+
+在components下创建CommonTag.vue：
+
+```vue
+<template>
+  <div class="tabs">
+    <el-tag
+      v-for="tag in tags"
+      :key="tag.name"
+      size="small"
+      :closable="tag.name !== 'home'"
+      :effect="$route.name === tag.name ? 'dark' : 'plain'"
+      @click="changeMenu(tag)"
+    >
+      {{ tag.label }}
+    </el-tag>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+
+export default {
+  computed: {
+    ...mapState({
+      tags: (state) => state.tab.tabsList,
+    })
+  },
+  methods: {
+    changeMenu (item) {
+      this.$router.push({ name: item.name })
+      this.$store.commit('selectMenu', item)
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+.tabs {
+  padding: 20px 10px 0 10px;
+
+  .el-tag {
+    margin-right: 15px;
+    cursor: pointer;
+  }
+}
+</style>
+
+```
+
+在Main.vue下面添加：
+
+```vue
+ </el-header>
+ <!--添加到这里-->
+ <common-tag></common-tag>
+ <el-main>
+```
+
+在store目录下tab.js修改：
+
+```js
+export default {
+  state: {
+    isCollapse: false,
+    currentMenu: null,
+    tabsList: [
+      {
+        path: '/',
+        name: 'home',
+        label: '首页',
+        icon: 'home'
+      }
+    ]
+  },
+  mutations: {
+    collapseMenu (state) {
+      state.isCollapse = !state.isCollapse
+    },
+    selectMenu (state, val) {
+      val.name === 'home' ? (state.currentMenu = null) : state.currentMenu = val
+      if (val.name === 'home') {
+        state.currentMenu = null
+      } else {
+        state.currentMenu = val
+        // 新增
+        let result = state.tabsList.findIndex(item => item.name === val.name)
+        result === -1 ? state.tabsList.push(val) : ''
+      }
+    }
+  }
+}
+
+```
+
+### 删除
+
+点击标签删除导航条，回到CommonTag.vue在methods下添加：
+
+```vue
+因为解决了一些错误，见下面完整代码。
+```
+
+在store目录下的tab.js中的mutations添加下面方法：
+
+```js
+closeTag (state, val) {
+  let result = state.tabsList.findIndex(item => item.name === val.name)
+  state.tabsList.splice(result, 1)
+}
+```
+
+CommonTag.vue：
+
+```vue
+<template>
+  <div class="tabs">
+    <!--要实现删除后的跳转需要在v-for中加上index参数-->
+    <el-tag
+      v-for="(tag,index) in tags"
+      :key="tag.name"
+      size="small"
+      :closable="tag.name !== 'home'"
+      :effect="$route.name === tag.name ? 'dark' : 'plain'"
+      @click="changeMenu(tag)" @close="handleClose(tag,index)"
+    >
+      {{ tag.label }}
+    </el-tag>
+  </div>
+</template>
+
+<script>
+import { mapState, mapMutations } from 'vuex'
+
+export default {
+  computed: {
+    ...mapState({
+      tags: (state) => state.tab.tabsList,
+    })
+  },
+  methods: {
+    ...mapMutations({
+      close: 'closeTag'
+    }),
+    changeMenu (item) {
+      this.$router.push({ name: item.name })
+      this.$store.commit('selectMenu', item)
+    },
+    // 删除tag标签
+    handleClose (tag, index) {
+      let length = this.tags.length - 1
+      this.close(tag)
+      // 判断是不是最后一个，最后一个不能删除
+
+      if (tag.name !== this.$route.name) {
+        return
+      }
+      if (index === length) {
+        // 向左跳转
+        this.$router.push({
+          name: this.tags[index - 1].name,
+        })
+      } else {
+        // 向右边跳转
+        this.$router.push({ name: this.tags[index].name })
+      }
+    }
+  }
+}
+</script>
+```
 
 
 

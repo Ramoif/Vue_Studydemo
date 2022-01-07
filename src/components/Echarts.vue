@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import * as echarts from 'echarts'
+
 export default {
   props: {
     chartData: {
@@ -19,9 +21,42 @@ export default {
       default: true,
     },
   },
+  watch: {
+    chartData: {
+      handler: function () {
+        this.initChart()
+      },
+      deep: true,
+    }
+  },
+  computed: {
+    options () {
+      return this.isAxisChart ? this.axisOption : this.normalOption
+    }
+  },
+  methods: {
+    initChart () {
+      this.initChartData()
+      // 设置echarts表格
+      if (this.echart) {
+        this.echart.setOption(this.options)
+      } else {
+        this.echart = echarts.init(this.$refs.echart)
+        this.echart.setOption(this.options)
+      }
+    },
+    initChartData () {
+      if (this.isAxisChart) {
+        this.axisOption.xAxis.data = this.chartData.xData
+        this.axisOption.series = this.chartData.series
+      } else {
+        this.normalOption.series = this.chartData.series
+      }
+    }
+  },
   data () {
     return {
-      axisOption{
+      axisOption: {
         legend: {
           // 图例文字颜色
           textStyle: {
@@ -61,7 +96,7 @@ export default {
         color: ['#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80', '#8d98b3'],
         series: [],
       },
-      normalOption{
+      normalOption: {
         tooltip: {
           trigger: 'item',
         },
@@ -76,6 +111,7 @@ export default {
         ],
         series: [],
       },
+      echart: null,
     }
   }
 }

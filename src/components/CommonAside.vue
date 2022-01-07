@@ -1,10 +1,8 @@
 <template>
   <el-menu
     class="el-menu-vertical-demo"
-    @open="handleOpen"
-    @close="handleClose"
     :collapse="isCollapse"
-    background-color="#545c64"
+    background-color="#455483"
     text-color="#fff"
     active-text-color="ffd04b"
   >
@@ -95,14 +93,15 @@ export default {
     }
   },
   methods: {
-    handleOpen (key, keyPath) {
-      console.log(key, keyPath)
-    },
-    handleClose (key, keyPath) {
-      console.log(key, keyPath)
-    },
+    // handleOpen (key, keyPath) {
+    //   console.log(key, keyPath)
+    // },
+    // handleClose (key, keyPath) {
+    //   console.log(key, keyPath)
+    // },
     clickMenu (item) {
       this.$router.push({ name: item.name })
+      this.$store.commit('selectMenu', item)
     }
   },
   computed: {
@@ -121,7 +120,7 @@ export default {
 
 <style lang="scss" scoped>
 .el-menu {
-  height: 100%;
+  height: 100vh;
   border: none;
 
   h3 {
@@ -133,6 +132,6 @@ export default {
 
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
-  height: 400px;
+  height: 100vh;
 }
 </style>
