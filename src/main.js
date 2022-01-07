@@ -3,6 +3,7 @@ import App from './App.vue'
 import './registerServiceWorker'
 import router from './router'
 import store from './store'
+import './assets/scss/reset.scss'
 import 'element-ui/lib/theme-chalk/index.css'
 import http from 'axios'
 import {

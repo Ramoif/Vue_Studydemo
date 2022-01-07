@@ -34,10 +34,9 @@ export default {
 
 <!--添加样式-->
 <style lang="scss">
-@import "~@/assets/scss/reset";
 
 .el-header {
-  background: #496bd9;
+  background-image: linear-gradient(#fff, #a7b8fa);
 }
 
 .el-main {

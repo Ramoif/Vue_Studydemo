@@ -72,9 +72,6 @@ header {
   }
 }
 
-</style>
-
-<style lang="scss">
 .el-breadcrumb__item {
   .el-breadcrumb__inner {
     color: #666;
@@ -87,4 +84,5 @@ header {
     }
   }
 }
+
 </style>

@@ -4,7 +4,7 @@
     <el-tag
       v-for="(tag,index) in tags"
       :key="tag.name"
-      size="small"
+      size="medium"
       :closable="tag.name !== 'home'"
       :effect="$route.name === tag.name ? 'dark' : 'plain'"
       @click="changeMenu(tag)" @close="handleClose(tag,index)"
@@ -54,7 +54,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tabs {
   padding: 20px 10px 0 10px;
 

@@ -42,8 +42,8 @@
              :style="{background:item.color}">
           </i>
           <div class="detail">
-            <p class="num">￥{{ item.value }}</p>
-            <p class="txt">￥{{ item.name }}</p>
+            <p class="num">{{ item.value }}</p>
+            <p class="txt">{{ item.name }}</p>
           </div>
         </el-card>
       </div>
@@ -74,7 +74,6 @@
 
 <script>
 import { getHome } from '../../api/data'
-import * as echarts from 'echarts'
 import Echart from '@/components/Echarts.vue'
 
 export default {
@@ -87,39 +86,39 @@ export default {
       tableData: [],
       countData: [
         {
-          name: '今日支付',
-          value: 1234,
-          icon: 'success',
+          name: '今日用户数',
+          value: 264,
+          icon: 'circle-plus-outline',
           color: '#2ec7c9',
         },
         {
-          name: '今日收藏',
-          value: 210,
-          icon: 'start-on',
+          name: '今日活跃数',
+          value: 160,
+          icon: 'sunny',
           color: '#ffb980',
         },
         {
-          name: '今日未支付',
-          value: 1234,
-          icon: 's-goods',
+          name: '今日完成数',
+          value: 0,
+          icon: 'check',
           color: '#5ab1ef',
         },
         {
-          name: '本月支付',
-          value: 1234,
-          icon: 'success',
+          name: '总用户数',
+          value: 2022,
+          icon: 's-custom',
           color: '#2ec7c9',
         },
         {
-          name: '本月收藏',
-          value: 210,
-          icon: 'start-on',
+          name: '总平台数',
+          value: 25,
+          icon: 'umbrella',
           color: '#ffb980',
         },
         {
-          name: '本月未支付',
-          value: 1234,
-          icon: 's-goods',
+          name: '总完成数',
+          value: 100,
+          icon: 'coordinate',
           color: '#5ab1ef',
         },
       ],

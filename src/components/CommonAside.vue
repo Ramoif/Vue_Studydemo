@@ -70,6 +70,13 @@ export default {
           url: 'UserManage/UserManage'
         },
         {
+          path: '/login',
+          name: 'login',
+          label: '登录测试',
+          icon: 'position',
+          url: 'Login/Login'
+        },
+        {
           label: '其他',
           icon: 'location',
           children: [
