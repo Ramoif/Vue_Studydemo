@@ -1,15 +1,15 @@
-import axios from './axios'
+import request from '@/utils/request'
 
 export const getMenu = () => {
-  return axios.request({
+  return request.request({
     url: 'menu',
     method: 'get'
   })
 }
 
 export const getHome = () => {
-  return axios.request({
-    url: '/api/home/getData',
+  return request.request({
+    url: '/home/getData',
     method: 'get'
   })
 }

@@ -5,7 +5,10 @@ import router from './router'
 import store from './store'
 import './assets/scss/reset.scss'
 import 'element-ui/lib/theme-chalk/index.css'
-import http from 'axios'
+// import http from 'request'
+import request from '@/utils/request'
+import moment from 'moment'
+
 import {
   Pagination,
   Dialog,
@@ -83,9 +86,11 @@ import {
   Loading,
   MessageBox,
   Message,
-  Notification
+  Notification,
+  Avatar,
 } from 'element-ui'
 
+Vue.use(Avatar)
 Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Autocomplete)
@@ -108,7 +113,7 @@ Vue.use(Switch)
 Vue.use(Select)
 Vue.use(Option)
 Vue.use(OptionGroup)
-Vue.use(Button)
+Vue.use(Button, { size: 'small' })
 Vue.use(ButtonGroup)
 Vue.use(Table)
 Vue.use(TableColumn)
@@ -161,6 +166,8 @@ Vue.use(PageHeader)
 Vue.use(CascaderPanel)
 
 Vue.use(Loading.directive)
+Vue.use(require('vue-moment'))
+Vue.prototype.moment = moment
 
 Vue.prototype.$loading = Loading.service
 Vue.prototype.$msgbox = MessageBox
@@ -170,11 +177,16 @@ Vue.prototype.$prompt = MessageBox.prompt
 Vue.prototype.$notify = Notification
 Vue.prototype.$message = Message
 
-Vue.prototype.$http = http
+// Vue.prototype.$http = http
+Vue.prototype.request = request
 
 Vue.config.productionTip = false
 
 if (process.env.NODE_ENV === 'development') require('@/api/mock')
+
+Vue.filter('dateYMDHMSFormat', function (dateStr, pattern = 'YYYY-MM-DD HH:mm:ss') {
+  return moment(dateStr).format(pattern)
+})
 
 new Vue({
   router,

@@ -1,12 +1,13 @@
 <template>
   <div id="app">
-    <!--  给router-link展示的区域↓，注意初始化的时候不要删除这个！  -->
+    <!--  给router-link展示的区域↓  -->
     <router-view />
   </div>
 </template>
 
 <style lang="scss" scoped>
 #app {
+  height: 100%;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

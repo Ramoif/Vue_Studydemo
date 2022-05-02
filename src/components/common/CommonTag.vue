@@ -56,7 +56,8 @@ export default {
 
 <style lang="scss" scoped>
 .tabs {
-  padding: 20px 10px 0 10px;
+  padding: 15px 20px 0 215px;
+  position: fixed;
 
   .el-tag {
     margin-right: 15px;

@@ -22,12 +22,13 @@ export default {
       } else {
         state.currentMenu = val
         // 新增
-        let result = state.tabsList.findIndex(item => item.name === val.name)
+        const result = state.tabsList.findIndex(item => item.name === val.name)
+        // eslint-disable-next-line no-unused-expressions
         result === -1 ? state.tabsList.push(val) : ''
       }
     },
     closeTag (state, val) {
-      let result = state.tabsList.findIndex(item => item.name === val.name)
+      const result = state.tabsList.findIndex(item => item.name === val.name)
       state.tabsList.splice(result, 1)
     }
   }
