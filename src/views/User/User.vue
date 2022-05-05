@@ -68,7 +68,6 @@
           </el-table-column>
           <el-table-column fixed="right" label="操作" width="170">
             <template #default="scope">
-              <!--<el-button size="small" type="info" @click="openIntern(scope.row)" plain>详细</el-button>-->
               <el-button size="small" type="primary" @click="handleEdit(scope.row)" plain>编辑</el-button>
               <el-button size="small" type="danger" @click="openDeleteMsg(scope.row.id)" plain>删除</el-button>
             </template>
@@ -128,53 +127,6 @@
             <el-button @click="dialogVisible = false">取消</el-button>
             <el-button type="primary" @click="save">确定</el-button>
           </span>
-            </template>
-          </el-dialog>
-
-          <!-- 详细资料弹窗 -->
-          <el-dialog :visible.sync="DetailDialogVisible" title="详细信息" width="30%">
-            <el-form :model="internForm" label-width="120px">
-              <el-form-item label="真实姓名">
-                <el-input v-model="internForm.trueName" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="出生日期" prop="birthday" :label-width="formLabelWidth">
-                <el-date-picker v-model="internForm.birthday" type="date" placeholder="出生日期">
-                </el-date-picker>
-              </el-form-item>
-              <el-form-item label="个人联系电话">
-                <el-input v-model="internForm.telephone" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="身份证号">
-                <el-input v-model="internForm.civilCard" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="籍贯">
-                <el-input v-model="internForm.nativePlace" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="目前住址">
-                <el-input v-model="internForm.address" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="学校">
-                <el-input v-model="internForm.school" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="所学专业">
-                <el-input v-model="internForm.subject" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="学历">
-                <el-input v-model="internForm.degree" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="目前年级">
-                <el-input v-model="internForm.grade" :label-width="formLabelWidth"></el-input>
-              </el-form-item>
-              <el-form-item label="入学日期" prop="graduateDay" :label-width="formLabelWidth">
-                <el-date-picker v-model="internForm.graduateDay" type="date" placeholder="入学日期">
-                </el-date-picker>
-              </el-form-item>
-            </el-form>
-            <template #footer>
-              <span class="dialog-footer">
-                <el-button type="primary" @click="saveUserDetail" plain>修改详细信息</el-button>
-                <el-button type="info" @click="DetailDialogVisible = false" plain>关闭详细信息</el-button>
-              </span>
             </template>
           </el-dialog>
         </div>
@@ -295,40 +247,31 @@ export default {
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogVisible = true
     },
-    openIntern (row) {
-      if (row.userIntern) {
-        this.internForm = JSON.parse(JSON.stringify(row.userIntern))
-        console.log(this.internForm)
-        this.DetailDialogVisible = true
-      } else {
-        this.$message.error('该用户没有详细信息！')
-      }
-    },
-    saveUserDetail () {
-      if (this.internForm.internId) {
-        request.post('/intern', this.internForm).then(res => {
-          console.log(res)
-          if (res === true) {
-            this.$message({
-              type: 'success',
-              message: '更新详细资料完成'
-            })
-          } else {
-            this.$message({
-              type: 'error',
-              message: res.msg
-            })
-          }
-          // 更新完成后应该刷新数据并且关闭弹窗。
-          this.load()
-          this.DetailDialogVisible = false
-        })
-      } else {
-        this.$message.error('不存在用户详细信息或出错')
-        this.load()
-        this.DetailDialogVisible = false
-      }
-    },
+    // saveUserDetail () {
+    //   if (this.internForm.internId) {
+    //     request.post('/intern', this.internForm).then(res => {
+    //       console.log(res)
+    //       if (res === true) {
+    //         this.$message({
+    //           type: 'success',
+    //           message: '更新详细资料完成'
+    //         })
+    //       } else {
+    //         this.$message({
+    //           type: 'error',
+    //           message: res.msg
+    //         })
+    //       }
+    //       // 更新完成后应该刷新数据并且关闭弹窗。
+    //       this.load()
+    //       this.DetailDialogVisible = false
+    //     })
+    //   } else {
+    //     this.$message.error('不存在用户详细信息或出错')
+    //     this.load()
+    //     this.DetailDialogVisible = false
+    //   }
+    // },
     openDeleteMsg (id) {
       // 传入此列成员的id
       this.$confirm('将删除id为' + id + '的用户, 继续?', '提示', {
